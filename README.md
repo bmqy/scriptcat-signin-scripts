@@ -1,7 +1,4 @@
-﻿# signin-scripts 项目说明
-
-> 更新时间：2025-12-08 ｜ 撰写：Codex  
-> 目标：以“模拟人工操作”为核心，为常用网站提供一键式每日签到脚本。
+﻿# scriptcat-signin-scripts 项目说明
 
 ## 项目定位
 - 通过 Vite + vite-plugin-monkey 生成用户脚本，依托浏览器与站点原生 Cookie，实现“人在现场”的签到方式。
