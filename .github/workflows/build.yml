@@ -1,0 +1,109 @@
+name: Build Scripts
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'src/**'
+      - 'vite.config.ts'
+      - 'tsconfig.json'
+      - 'package.json'
+      - 'build-all.mjs'
+      - '.github/workflows/build.yml'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: TypeScript type check
+        run: npm run build 2>&1 | head -100
+        continue-on-error: true
+      
+      - name: Build scripts
+        run: npm run build
+      
+      - name: List build artifacts
+        if: success()
+        run: |
+          echo "📦 Build artifacts:"
+          ls -lh dist/
+          echo ""
+          echo "Files generated:"
+          find dist/ -type f \( -name "*.user.js" -o -name "*.user.sub.js" \) | sort
+      
+      - name: Verify artifacts
+        if: success()
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ dist directory not found!"
+            exit 1
+          fi
+          
+          files_count=$(find dist/ -type f \( -name "*.user.js" -o -name "*.user.sub.js" \) | wc -l)
+          if [ "$files_count" -eq 0 ]; then
+            echo "❌ No script files generated!"
+            exit 1
+          fi
+          
+          echo "✅ Build verification passed"
+          echo "Generated $files_count script files"
+      
+      - name: Upload artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scriptcat-signin-scripts
+          path: dist/
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Commit and push dist artifacts (main push only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && success()
+        run: |
+          if [ -z "$(git status --short dist)" ]; then
+            echo "No dist changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist
+          git commit -m "chore: update dist artifacts [skip ci]" || echo "No changes to commit"
+          git push
+      
+      - name: Build summary
+        if: always()
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d "dist" ]; then
+            echo "✅ Build succeeded" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Generated Scripts:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            find dist/ -type f \( -name "*.user.js" -o -name "*.user.sub.js" \) | sort | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Build failed - no artifacts" >> $GITHUB_STEP_SUMMARY
+          fi

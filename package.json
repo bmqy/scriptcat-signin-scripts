@@ -1,0 +1,19 @@
+{
+  "name": "scriptcat-signin-scripts",
+  "private": true,
+  "version": "0.0.3",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.config.ts",
+    "build": "tsc && node build-all.mjs",
+    "build:site": "cross-env vite build",
+    "preview": "vite preview --config vite.config.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.2",
+    "cross-env": "^10.1.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "vite-plugin-monkey": "^7.1.5"
+  }
+}
