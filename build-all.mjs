@@ -73,10 +73,8 @@ try {
   const SCRIPT_BASE_URL = process.env.SCRIPT_CDN_URL || 'https://raw.githubusercontent.com/bmqy/scriptcat-signin-scripts/main/dist';
   const PACKAGE_VERSION = pkg.version;
   
-  // 生成订阅脚本内容 - 指向各个独立的站点脚本
-  const scripts = buildTargets
-    .filter(t => !t.name.startsWith('cron'))
-    .map(target => `${SCRIPT_BASE_URL}/${target.output}`);
+  // 生成订阅脚本内容 - 指向各个独立的站点脚本和定时脚本
+  const scripts = buildTargets.map(target => `${SCRIPT_BASE_URL}/${target.output}`);
   const scriptUrlLines = scripts.map(url => `// @scriptUrl    ${url}`).join('\n');
   
   const subscribeContent = `// ==UserSubscribe==
