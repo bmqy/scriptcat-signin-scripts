@@ -9,4 +9,5 @@
 // @connect      *://*/*
 // @scriptUrl    https://raw.githubusercontent.com/bmqy/scriptcat-signin-scripts/main/dist/signin-juejin.user.js
 // @scriptUrl    https://raw.githubusercontent.com/bmqy/scriptcat-signin-scripts/main/dist/signin-v2ex.user.js
+// @scriptUrl    https://raw.githubusercontent.com/bmqy/scriptcat-signin-scripts/main/dist/signin-cron.user.js
 // ==/UserSubscribe==
