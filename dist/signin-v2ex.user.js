@@ -87,7 +87,19 @@
   const isAutoSignin = () => {
     if (typeof window === "undefined") return false;
     const url = new URL(window.location.href);
-    return url.searchParams.get(AUTO_PARAM) === "1" || url.hash.includes(`${AUTO_PARAM}=1`);
+    const hasParam = url.searchParams.get(AUTO_PARAM) === "1" || url.hash.includes(`${AUTO_PARAM}=1`);
+    if (hasParam) {
+      try {
+        window.sessionStorage.setItem("signin:auto:flag", "1");
+      } catch (_) {
+      }
+      return true;
+    }
+    try {
+      return window.sessionStorage.getItem("signin:auto:flag") === "1";
+    } catch (_) {
+      return false;
+    }
   };
   const appendAutoParam = (url) => {
     try {
@@ -202,6 +214,10 @@ insert: true,
           text: result.message ?? (result.success ? "签到完成" : "签到失败"),
           timeout: 5e3
         });
+      }
+      try {
+        window.sessionStorage.removeItem("signin:auto:flag");
+      } catch (_) {
       }
       try {
         window.close();
