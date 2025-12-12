@@ -81,7 +81,23 @@ export const debug = (siteId: string, message: string) => {
 export const isAutoSignin = () => {
   if (typeof window === 'undefined') return false;
   const url = new URL(window.location.href);
-  return url.searchParams.get(AUTO_PARAM) === '1' || url.hash.includes(`${AUTO_PARAM}=1`);
+  const hasParam = url.searchParams.get(AUTO_PARAM) === '1' || url.hash.includes(`${AUTO_PARAM}=1`);
+
+  // 记录当前标签的自动签到标记，防止站点重定向丢失查询参数
+  if (hasParam) {
+    try {
+      window.sessionStorage.setItem('signin:auto:flag', '1');
+    } catch (_) {
+      /* ignore */
+    }
+    return true;
+  }
+
+  try {
+    return window.sessionStorage.getItem('signin:auto:flag') === '1';
+  } catch (_) {
+    return false;
+  }
 };
 
 export const appendAutoParam = (url: string) => {

@@ -45,6 +45,13 @@ export const bootstrap = async (sites: SiteDefinition[]) => {
         timeout: 5000,
       });
     }
+
+    // 清理自动标记，避免用户后续手动浏览同标签时误触发
+    try {
+      window.sessionStorage.removeItem('signin:auto:flag');
+    } catch (_) {
+      /* ignore */
+    }
     try {
       window.close();
     } catch (_) {
